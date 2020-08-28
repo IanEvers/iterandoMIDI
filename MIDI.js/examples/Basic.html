@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns = "http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<!-- polyfill -->
+	<script src="../../inc/shim/Base64.js" type="text/javascript"></script>
+	<script src="../../inc/shim/Base64binary.js" type="text/javascript"></script>
+	<script src="../../inc/shim/WebAudioAPI.js" type="text/javascript"></script>
+	<!-- midi.js package -->
+
+	<script src="../../js/midi/player.js" type="text/javascript"></script>
+	<script src="../../js/midi/loader.js" type="text/javascript"></script>
+	<script src="../../js/midi/plugin.audiotag.js" type="text/javascript"></script>
+	<script src="../../js/midi/plugin.webaudio.js" type="text/javascript"></script>
+	<script src="../../js/midi/plugin.webmidi.js" type="text/javascript"></script>
+	<!-- utils -->
+	<script src="../../js/util/dom_request_xhr.js" type="text/javascript"></script>
+	<script src="../../js/util/dom_request_script.js" type="text/javascript"></script>
+</head>
+<body>
+
+	<h3>Clickeame Broker</h3>
+	<button class="button" onclick="myFunction2()"   data-key="q"></div>>Animate eh</button>
+	
+	<div id="key_data"></div>
+	<div>	
+		<canvas id="canvas" width="1800" height="800" style="border:1px solid #000000;">
+	</div>
+
+<script type="text/javascript">
+
+
+
+//desde aca empieza para hacer sonar sonidos
+//desde aca empieza para hacer sonar sonidos
+//desde aca empieza para hacer sonar sonidos
+//desde aca empieza para hacer sonar sonidos
+//desde aca empieza para hacer sonar sonidos
+
+function myFunction2() {
+
+	var midi;
+	var AudioContext;
+	var context;
+	var data, cmd, channel, type, note, velocity;
+	var btn = document.getElementsByClassName('button');
+	let notas = [];
+	let audios = [];
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+	var tiempoInicial = new Date();
+	
+	//pintar();
+
+	var colores = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+		'#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+		'#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+		'#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+		'#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+		'#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+		'#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+		'#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+		'#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+		'#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+	];
+
+
+	var color = colores[parseInt(Math.random() * (35 - 0))];
+	
+	var tiempo = new Date() - tiempoInicial;
+
+	setInterval(timer, tiempo);
+
+	function timer() {
+		var tiempo = new Date() - tiempoInicial;
+
+		ctx.fillStyle = color;
+		ctx.fillRect(0, tiempo/50, 10, 1);
+	}
+	
+	
+	try {
+		AudioContext = window.AudioContext || window.webkitAudioContext; // for ios/safari
+		context = new AudioContext();
+	}
+	catch(e) {
+		alert('Web Audio API is not supported in this browser');
+	}
+	if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({
+        sysex: false 
+    }).then(onMIDISuccess, onMIDIFailure);
+	} else {
+		alert("No MIDI support in your browser.");
+	}
+
+
+	var keyData = document.getElementById('key_data');
+
+
+	function onMIDISuccess(midiAccess) {
+		console.log('MIDI Access Object', midiAccess);
+		midi = midiAccess;
+		var inputs = midi.inputs.values();
+		for(var input = inputs.next(); input && !input.done; input = inputs.next()) {
+			input.value.onmidimessage = onMIDIMessage;
+		}
+	}
+
+	function onMIDIMessage(event) {
+		data = event.data,
+		cmd = data[0] >> 4,
+		channel = data[0] & 0xf,
+		type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
+		note = data[1],
+		velocity = data[2];
+		function onMIDIMessage(message) {
+			data = message.data; // this gives us our [command/channel, note, velocity] data.
+			console.log('MIDI data', data); // MIDI data [144, 63, 73]
+		}
+		switch (type) {
+			case 144: // noteOn message 
+				noteOn(note, velocity);
+				break;
+			case 128: // noteOff message 
+				noteOff(note, velocity);
+				break;
+		}
+    //console.log('data', data, 'cmd', cmd, 'channel', channel);
+    	logger(keyData, 'key data', data);
+	}
+
+
+	function player(note, velocity) {
+
+		var tiempo2 = new Date() - tiempoInicial;
+	
+		if(tiempo2 > 39000) {
+			tiempoInicial = new Date();
+		}
+		if (type == (0x80 & 0xf0) || velocity == 0) {
+			
+			for(var i = notas.length - 1; i >= 0; i--) {
+				
+				if(Math.round(notas[i].frequency.value) == Math.round(frequencyFromNoteNumber(note))) {
+					notas[i].frequency.value = 0;
+					for(var i = audios.length - 1; i >= 0; i--) {
+						if(Math.round(frequencyFromNoteNumber(audios[i])) == Math.round(frequencyFromNoteNumber(note))) {
+							audios.splice(i, 1);
+						}
+					}
+					//notas.splice(i, 1);
+				}
+			}
+			return;
+		} else {
+			if(note == 36) {
+				color = colores[parseInt(Math.random() * (35 - 0))];
+				return;
+			}
+			 
+			if(notas.length < 15) {
+
+				context = new AudioContext();
+				var oscillator = context.createOscillator();
+				oscillator.frequency.value = frequencyFromNoteNumber(note);
+				oscillator.connect(context.destination);
+				
+				notas.push(oscillator); 
+				audios.push(note); 
+				oscillator.start();
+				pintar(oscillator, note);
+			} else {
+				var i;
+				for(i = notas.length - 1; i >= 0; i--) {
+				
+					if(Math.round(notas[i].frequency.value) == 0) {
+						
+						notas[i].frequency.value = frequencyFromNoteNumber(note);
+						audios.push(note); 
+						break;
+					}
+				}
+				pintar(notas[i], note);
+			}
+		
+			
+		}
+	}
+
+	function pintar(oscillator, notaActual) {
+		console.log(notaActual);
+		console.log(audios);
+		var ctxNota = canvas.getContext("2d");
+		tiempoInicial2 = new Date();
+		var tiempo3 = new Date() - tiempoInicial2;
+		setInterval(nota, tiempo3);
+		function nota() {
+			var tiempo3 = new Date() - tiempoInicial;
+		
+			if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
+				ctx.fillStyle = color;
+				ctx.fillRect(Math.pow(notaActual, 1.05)*10 , tiempo3/50, 10, 5);
+			}
+		}
+	}
+	
+	/*function pintar() {
+		var ctxNota = canvas.getContext("2d");
+		tiempoInicial2 = new Date();
+		var tiempo3 = new Date() - tiempoInicial2;
+		setInterval(nota, tiempo3);
+		function nota() {
+			var tiempo3 = new Date() - tiempoInicial;
+			for(var oscillator in notas) {
+				ctx.fillStyle = color;
+				ctx.fillRect(Math.pow(note, 2)/6 , tiempo3/50, 10, 5);
+			}
+		}
+	}*/
+	
+//utilidad
+	function inArray(needle, haystack) {
+		var length = haystack.length;
+		for(var i = 0; i < length; i++) {
+			if(haystack[i] == needle) return true;
+		}
+		return false;
+	}
+
+	function noteOn(midiNote, velocity) {
+		player(midiNote, velocity);
+	}
+
+	function noteOff(midiNote, velocity) {
+		player(midiNote, velocity);
+	}
+
+	function onMIDIFailure(e) {
+		// when we get a failed response, run this code
+		console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + e);
+	}
+
+	function frequencyFromNoteNumber(note) {
+    	return 440 * Math.pow(2, (note - 69) / 12);
+	}
+
+	/*function noteFromFrequency(frequencia) {
+    	return 440 * Math.pow(2, (note - 69) / 12);
+	}*/
+
+	function logger(container, label, data) {
+    	messages = label + " [channel: " + (data[0] & 0xf) + ", cmd: " + (data[0] >> 4) + ", type: " + (data[0] & 0xf0) + " , note: " + data[1] + " , velocity: " + data[2] + "]";
+    	container.textContent = messages;
+	}
+
+}
+</script>
+</body>
+</html>
