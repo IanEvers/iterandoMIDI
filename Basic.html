@@ -39,6 +39,13 @@
 
 function myFunction2() {
 
+	const logKey = function(e) {
+		player(58, 64);
+		setTimeout(function(){ player(58, 0); }, 3000);
+	}
+
+	document.addEventListener('keypress', logKey);
+
 	var midi;
 	var AudioContext;
 	var context;
@@ -49,8 +56,6 @@ function myFunction2() {
 	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
 	var tiempoInicial = new Date();
-	
-	//pintar();
 
 	var colores = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
 		'#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
@@ -76,8 +81,12 @@ function myFunction2() {
 
 		ctx.fillStyle = color;
 		ctx.fillRect(0, tiempo/50, 10, 1);
-	}
+		var tiempo2 = new Date() - tiempoInicial;
 	
+		if(tiempo2 > 39000) {
+			tiempoInicial = new Date();
+		}
+	}
 	
 	try {
 		AudioContext = window.AudioContext || window.webkitAudioContext; // for ios/safari
@@ -133,11 +142,7 @@ function myFunction2() {
 
 	function player(note, velocity) {
 
-		var tiempo2 = new Date() - tiempoInicial;
-	
-		if(tiempo2 > 39000) {
-			tiempoInicial = new Date();
-		}
+		
 		if (type == (0x80 & 0xf0) || velocity == 0) {
 			
 			for(var i = notas.length - 1; i >= 0; i--) {
@@ -183,8 +188,6 @@ function myFunction2() {
 				}
 				pintar(notas[i], note);
 			}
-		
-			
 		}
 	}
 
