@@ -5,27 +5,37 @@
 	<!-- polyfill -->
 
 	<!-- JAJAJAJA AL FINAL NINGUNA DEPENDENCIA Y ANDA IGUAL LA CONCHA QUE ME PARIO AHJAJAJAJDHJASDBFHSADGFBASDJLGASP -->
-	<!-- midi.js package -->
-
 
 </head>
 <body  style="text-align: center;">
 
 	<h3>Clickeame Broker</h3>
-	<button class="button" onclick="Comienzo()"   data-key="q"></div> Empezar a Tocar</button>
-	<button id="horizontalidad" onclick="orientacion()"></div>Vertical</button>
-	
-	<div id="key_data"></div>
-	<div>	
+	<button class="button" onclick="Comienzo()" data-key="q">Empezar a Tocar</button>
+	<button id="horizontalidad" onclick="orientacion()">Vertical</button>
+	<label for="compasesPantalla"> Compases por pantalla:</label>
+	<input type="text" id="compasesPantalla" value="4" onchange="actualizarTempo()" style="width: 20px; text-align: center;">
+	<label for="pulsosPorCompas"> pulsos por compas:</label>
+	<input type="text" id="pulsosPorCompas" value="4" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
+	<label for="subdivisiones"> Subdivisiones</label>
+	<input type="text" id="subdivisiones" value="2" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
+	<label for="BPM"> BPM:</label>
+	<input type="text" id="BPM" value="60" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
+
+	<div>
 		<canvas id="canvas" width="800" height="800"  style="border:1px solid #000000; align-self: center;">
 	</div>
-
+	<div id="key_data"></div>
 <script type="text/javascript">
 
+var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var horizontalidad = false;
 var btnOrientacion = document.getElementById('horizontalidad');
+var compasesPantalla, pulsosPorCompas, subdivisiones, BPM, sonidoPulsos, velocidad;
 
+window.onload = function() {
+	actualizarTempo();
+}
 
 //desde acá manejo el canvas antes de empezar a tocar
 function orientacion() {
@@ -35,8 +45,37 @@ function orientacion() {
 	} else {
 		btnOrientacion.innerHTML = "Vertical";
 	}
+	actualizarTempo();
 }
 
+function actualizarTempo() {
+	compasesPantalla = document.getElementById('compasesPantalla');
+	compasesPantalla = compasesPantalla.value;
+	pulsosPorCompas = document.getElementById('pulsosPorCompas');
+	pulsosPorCompas = pulsosPorCompas.value
+	subdivisiones = document.getElementById('subdivisiones');
+	subdivisiones = subdivisiones.value;
+	BPM = document.getElementById('BPM');
+	BPM = BPM.value;
+	var divisionCanvas = (canvas.height / parseInt(compasesPantalla));
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	for(var i = divisionCanvas; i <= canvas.height; i+=divisionCanvas) {
+		if(horizontalidad) {
+			ctx.fillRect( i, 0, 3, canvas.height);
+		} else {
+			ctx.fillRect( 0, i, canvas.width, 3);
+
+		}
+		for(var lineaSub = 0; lineaSub < pulsosPorCompas;lineaSub++) {
+			if(horizontalidad) {
+				ctx.fillRect(i - ((divisionCanvas)/pulsosPorCompas) * lineaSub, 0, 1, canvas.height);
+			} else {
+				ctx.fillRect(0, i - ((divisionCanvas)/pulsosPorCompas) * lineaSub, canvas.width, 1);
+			}
+		}	
+	}
+}
 
 //desde aca empieza para hacer sonar sonidos
 //desde aca empieza para hacer sonar sonidos
@@ -52,11 +91,14 @@ function Comienzo() {
 	let audios = [];
 	var canvas = document.getElementById("canvas");
 	var tiempoInicial = new Date();
+	
 
 	//DEBUG PARA PROBAR TECLADO DE LA PC	
 	const logKey = function(e) {
-		player(58, 64);
-		setTimeout(function(){ player(58, 0); }, 3000);
+		if(e.key == "k"){
+			player(58, 64);
+			setTimeout(function(){ player(58, 0); }, 3000);
+		}
 	}
 	document.addEventListener('keypress', logKey);
 	// FIN DEL DEBUG PARA PROBAR TECLADO DE LA PC
@@ -217,30 +259,30 @@ function Comienzo() {
 	var color = COLORES[indiceColor];
 	
 	var tiempo = new Date() - tiempoInicial;
-
 	setInterval(timer, tiempo);
+
+	var pulsosPantallaTotal = compasesPantalla * pulsosPorCompas;
 
 	function timer() {
 		var tiempo = new Date() - tiempoInicial;
 
+		velocidad = (tiempo/1000) / (( pulsosPantallaTotal / BPM) * 60) * canvas.height;
 		ctx.fillStyle = color;
 	
 		if(horizontalidad) {
-			ctx.fillRect(tiempo/50, 0, 1, 10);
+			ctx.fillRect(velocidad, 0, 1, 10);
 		} else {
-			ctx.fillRect(0, tiempo/50, 10, 1);
+			ctx.fillRect(0, velocidad, 10, 1);
 		}
 		var tiempo2 = new Date() - tiempoInicial;
 	
-		if(tiempo2 > 39000) {
-			
+		if(velocidad > canvas.height) {
 			tiempoInicial = new Date();
-			canvas.height = 1000;
 		}
 	}
 	
 	try {
-		AudioContext = window.AudioContext || window.webkitAudioContext; // for ios/safari
+		AudioContext = window.AudioContext || window.webkitAudioContext;
 		context = new AudioContext();
 	}
 	catch(e) {
@@ -327,8 +369,8 @@ function Comienzo() {
 				context = new AudioContext();
 				var oscillator = context.createOscillator();
 				oscillator.frequency.value = frequencyFromNoteNumber(note);
+				oscillator.type = "sine";
 				oscillator.connect(context.destination);
-				
 				notas.push(oscillator); 
 				audios.push(note); 
 				oscillator.start();
@@ -360,9 +402,9 @@ function Comienzo() {
 			if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
 				ctx.fillStyle = color;
 				if(horizontalidad) {
-					ctx.fillRect(tiempo3/50, Math.pow(notaActual, 1.05)*10 - 256, 5, 10);
+					ctx.fillRect(velocidad + 3, Math.pow(notaActual, 1.05)*10 - 256, 5, 10);
 				} else {
-					ctx.fillRect(Math.pow(notaActual, 1.05)*10 - 256, tiempo3/50, 10, 5);
+					ctx.fillRect(Math.pow(notaActual, 1.05)*10 - 256,velocidad + 3, 10, 5);
 				}
 			}
 		}
