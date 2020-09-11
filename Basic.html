@@ -10,7 +10,7 @@
 <body  style="text-align: center;">
 
 	<h3>Clickeame Broker</h3>
-	<button class="button" onclick="Comienzo()" data-key="q">Empezar a Tocar</button>
+	<button class="button" id="button" onclick="Comienzo()" data-key="q">Empezar a Tocar</button>
 	<button id="horizontalidad" onclick="orientacion()">Vertical</button>
 	<label for="compasesPantalla"> Compases por pantalla:</label>
 	<input type="text" id="compasesPantalla" value="4" onchange="actualizarTempo()" style="width: 20px; text-align: center;">
@@ -20,6 +20,10 @@
 	<input type="text" id="subdivisiones" value="2" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
 	<label for="BPM"> BPM:</label>
 	<input type="text" id="BPM" value="60" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
+	<label for="notaMasBaja"> Nota mas baja:</label>
+	<input type="text" id="notaMasBaja" value="37" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
+	<label for="notaMasAlta"> Nota mas alta:</label>
+	<input type="text" id="notaMasAlta" value="85" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
 
 	<div>
 		<canvas id="canvas" width="800" height="800"  style="border:1px solid #000000; align-self: center;">
@@ -31,7 +35,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var horizontalidad = false;
 var btnOrientacion = document.getElementById('horizontalidad');
-var compasesPantalla, pulsosPorCompas, subdivisiones, BPM, sonidoPulsos, velocidad;
+var compasesPantalla, pulsosPorCompas, subdivisiones, BPM, sonidoPulsos, velocidad, notaMasBaja, notaMasAlta;
 
 window.onload = function() {
 	actualizarTempo();
@@ -57,6 +61,11 @@ function actualizarTempo() {
 	subdivisiones = subdivisiones.value;
 	BPM = document.getElementById('BPM');
 	BPM = BPM.value;
+	notaMasBaja = document.getElementById('notaMasBaja');
+	notaMasBaja = notaMasBaja.value;
+	notaMasAlta = document.getElementById('notaMasAlta');
+	notaMasAlta = notaMasAlta.value;
+	rangoNotas = notaMasAlta - notaMasBaja;
 	var divisionCanvas = (canvas.height / parseInt(compasesPantalla));
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -73,7 +82,18 @@ function actualizarTempo() {
 			} else {
 				ctx.fillRect(0, i - ((divisionCanvas)/pulsosPorCompas) * lineaSub, canvas.width, 1);
 			}
-		}	
+		}
+
+		/* si quisiera mostrar donde van las notas
+		for(var indiceNota = 1; indiceNota < rangoNotas; indiceNota++) {
+			if(horizontalidad) {
+				ctx.fillRect(0, (indiceNota / rangoNotas)* canvas.height, 1, canvas.height);
+			} else {
+				console.log((indiceNota / rangoNotas)* canvas.height);
+				ctx.fillRect((indiceNota / rangoNotas)* canvas.height, 0, 1, canvas.width);
+			}
+		}
+		*/
 	}
 }
 
@@ -333,9 +353,7 @@ function Comienzo() {
 
 	function player(note, velocity) {
 		if (type == (0x80 & 0xf0) || velocity == 0) {
-			
 			for(var i = notas.length - 1; i >= 0; i--) {
-				
 				if(Math.round(notas[i].frequency.value) == Math.round(frequencyFromNoteNumber(note))) {
 					notas[i].frequency.value = 0;
 					for(var i = audios.length - 1; i >= 0; i--) {
@@ -365,15 +383,14 @@ function Comienzo() {
 			}
 
 			if(notas.length < 15) {
-
 				context = new AudioContext();
 				var oscillator = context.createOscillator();
-				oscillator.frequency.value = frequencyFromNoteNumber(note);
 				oscillator.type = "sine";
+				oscillator.frequency.value = frequencyFromNoteNumber(note);
 				oscillator.connect(context.destination);
 				notas.push(oscillator); 
 				audios.push(note); 
-				oscillator.start();
+				oscillator.start(0);
 				pintar(oscillator, note);
 			} else {
 				var i;
@@ -402,9 +419,9 @@ function Comienzo() {
 			if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
 				ctx.fillStyle = color;
 				if(horizontalidad) {
-					ctx.fillRect(velocidad + 3, Math.pow(notaActual, 1.05)*10 - 256, 5, 10);
+					ctx.fillRect(velocidad + 3, ((notaActual - notaMasBaja) / rangoNotas)* canvas.height, 5, 10);
 				} else {
-					ctx.fillRect(Math.pow(notaActual, 1.05)*10 - 256,velocidad + 3, 10, 5);
+					ctx.fillRect(((notaActual - notaMasBaja) / rangoNotas)* canvas.height,velocidad + 3, 10, 5);
 				}
 			}
 		}
