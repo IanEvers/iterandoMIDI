@@ -3,14 +3,32 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<!-- polyfill -->
+	
 
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	
+	<script src="metronome-sound.js"></script>
+	<script src="visualization.js"></script>
+	<script src="app.js"></script>
 	<!-- JAJAJAJA AL FINAL NINGUNA DEPENDENCIA Y ANDA IGUAL LA CONCHA QUE ME PARIO AHJAJAJAJDHJASDBFHSADGFBASDJLGASP -->
 
 </head>
 <body  style="text-align: center;">
 
 	<h3>Clickeame Broker</h3>
-	<button class="button" id="button" onclick="Comienzo()" data-key="q">Empezar a Tocar</button>
+	<div class="container">
+		<h1>Metronome</h1>
+		<div class="row">
+				<input id="metronome" class="form-control btn btn-secondary"
+					   type="button" value="Start" onclick="metronomeApp.toggle()"/>
+			</div>
+			<div id='visualization' class="col-sm">
+			</div>
+		</div>
+	</div>
+	<button class="button" id="button" onclick="Comienzo(); metronomeApp.toggle()" data-key="q">Empezar a Tocar</button>
 	<button id="horizontalidad" onclick="orientacion()">Vertical</button>
 	<label for="compasesPantalla"> Compases por pantalla:</label>
 	<input type="text" id="compasesPantalla" value="4" onchange="actualizarTempo()" style="width: 20px; text-align: center;">
@@ -19,7 +37,7 @@
 	<label for="subdivisiones"> Subdivisiones</label>
 	<input type="text" id="subdivisiones" value="2" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
 	<label for="BPM"> BPM:</label>
-	<input type="text" id="BPM" value="60" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
+	<input type="text" id="BPM" value="60" onchange="actualizarTempo(); metronomeApp.setTempo(this.value);" style="width: 40px; text-align: center;">
 	<label for="notaMasBaja"> Nota mas baja:</label>
 	<input type="text" id="notaMasBaja" value="37" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
 	<label for="notaMasAlta"> Nota mas alta:</label>
@@ -365,7 +383,7 @@ function Comienzo() {
 			}
 			return;
 		} else {
-			if(note == 36) {
+			if(note == notaMasBaja +1) {
 				indiceColor--;
 				if(indiceColor < 0 ) {
 					indiceColor = parseInt(Math.random() * (105));
@@ -373,7 +391,7 @@ function Comienzo() {
 				color = COLORES[indiceColor];
 				return;
 			}
-			if(note == 37) {
+			if(note == notaMasBaja +2) {
 				indiceColor++;
 				if(indiceColor >100) {
 					indiceColor = parseInt(Math.random() * (105));
