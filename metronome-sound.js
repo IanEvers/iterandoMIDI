@@ -30,7 +30,7 @@ class MetronomeSound {
     /** Toggles the running state of the metronome */
     toggle() {
         const ms = this;
-
+        var i = 1;
         function playMetronome() {
             let nextStart = ms.audioContext.currentTime;
 
@@ -39,10 +39,15 @@ class MetronomeSound {
 
                 ms.listener.setStartTime(nextStart);
                 ms.listener.setTempo(ms.tempoBpm);
-                const bufIndex = ms.soundNum - 1;
-                if (bufIndex >= ms.soundFiles.buffers.length) {
-                    alert('Sound files are not yet loaded')
-                } else if (ms.tempoBpm) {
+                if (ms.tempoBpm) {
+                    if(i != 4) {
+                        metronomeApp.setSound(2);
+                        i++;
+                    } else {
+                        metronomeApp.setSound(1);
+                        i = 1;
+                    }
+                    const bufIndex = ms.soundNum - 1;
                     nextStart += 60 / ms.tempoBpm;
                     ms.source = ms.audioContext.createBufferSource();
                     ms.source.buffer = ms.soundFiles.buffers[bufIndex];
