@@ -31,6 +31,9 @@ class MetronomeSound {
     toggle() {
         const ms = this;
         var i = 1;
+        var pulsosPorCompas = document.getElementById('pulsosPorCompas').value;
+        subdivisiones = document.getElementById('subdivisiones').value;
+        
         function playMetronome() {
             let nextStart = ms.audioContext.currentTime;
 
@@ -40,7 +43,7 @@ class MetronomeSound {
                 ms.listener.setStartTime(nextStart);
                 ms.listener.setTempo(ms.tempoBpm);
                 if (ms.tempoBpm) {
-                    if(i != 4) {
+                    if(i != pulsosPorCompas * subdivisiones) {
                         metronomeApp.setSound(2);
                         i++;
                     } else {
