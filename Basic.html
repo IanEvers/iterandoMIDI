@@ -55,56 +55,37 @@
 	<canvas id="canvas" width="800" height="800"  style="border:1px solid #000000; align-self: center;">
 
 	<div id="key_data"></div>
-<script type="text/javascript">
 
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-var horizontalidad = false;
-var btnOrientacion = document.getElementById('horizontalidad');
-var compasesPantalla, pulsosPorCompas, subdivisiones, BPM, sonidoPulsos, velocidad, notaMasBaja, notaMasAlta;
-let colores = [];
-let colorSelector = document.getElementById("colorSelector");
+	<script type="text/javascript">
+	const canvas = document.getElementById("canvas");
+	const ctx = canvas.getContext("2d");
 
-colorSelector.addEventListener("change", actualizarColores);
+	const btnOrientacion = document.getElementById('horizontalidad');
 
-function actualizarColores() {
-	const INPUTS = colorSelector.getElementsByClassName("color");
-	for(let i = 0; i < INPUTS.length; i++) {
-		colores[i] = INPUTS[i].value;
+	// parametros
+	let compasesPantalla = parseInt(document.getElementById('compasesPantalla').value);
+	let pulsosPorCompas = parseInt(document.getElementById('pulsosPorCompas').value);
+	let subdivisiones = parseInt(document.getElementById('subdivisiones').value);
+	let BPM = parseInt(document.getElementById('BPM').value);
+	let notaMasBaja = parseInt(document.getElementById('notaMasBaja').value);
+	let notaMasAlta = parseInt(document.getElementById('notaMasAlta').value);
+	let rangoNotas = parseInt(notaMasAlta - notaMasBaja);
+	let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
+
+	// user settings
+	let horizontalidad = false;
+	let colores = [];
+
+	const actualizarParametros = function() {
+		compasesPantalla = document.getElementById('compasesPantalla').value;
+		pulsosPorCompas = document.getElementById('pulsosPorCompas').value;
+		subdivisiones = document.getElementById('subdivisiones').value;
+		BPM = document.getElementById('BPM').value;
+		notaMasBaja = document.getElementById('notaMasBaja').value;
+		notaMasAlta = document.getElementById('notaMasAlta').value;
+		rangoNotas = notaMasAlta - notaMasBaja;
+		divisionCanvas = (canvas.height / parseInt(compasesPantalla));
 	}
-	console.log(colores);
-}
-
-window.onload = function() {
-	actualizarTempo();
-}
-
-//desde acá manejo el canvas antes de empezar a tocar
-function orientacion() {
-	horizontalidad = !horizontalidad; 
-	if(horizontalidad) {
-		btnOrientacion.innerHTML = "Horizontal";
-	} else {
-		btnOrientacion.innerHTML = "Vertical";
-	}
-	actualizarTempo();
-}
-
-function actualizarTempo() {
-	compasesPantalla = document.getElementById('compasesPantalla');
-	compasesPantalla = compasesPantalla.value;
-	pulsosPorCompas = document.getElementById('pulsosPorCompas');
-	pulsosPorCompas = pulsosPorCompas.value
-	subdivisiones = document.getElementById('subdivisiones');
-	subdivisiones = subdivisiones.value;
-	BPM = document.getElementById('BPM');
-	BPM = BPM.value;
-	notaMasBaja = document.getElementById('notaMasBaja');
-	notaMasBaja = notaMasBaja.value;
-	notaMasAlta = document.getElementById('notaMasAlta');
-	notaMasAlta = notaMasAlta.value;
-	rangoNotas = notaMasAlta - notaMasBaja;
-	var divisionCanvas = (canvas.height / parseInt(compasesPantalla));
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	for(var i = divisionCanvas; i <= canvas.height; i+=divisionCanvas) {
