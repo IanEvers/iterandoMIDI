@@ -28,9 +28,12 @@ class MetronomeSound {
     }
 
     /** Toggles the running state of the metronome */
-    toggle(pulsosPorCompas, subdivisiones) {
+    toggle() {
         const ms = this;
         var i = 1;
+        
+        var pulsosPorCompas = document.getElementById('pulsosPorCompas').value;
+        var subdivisiones = document.getElementById('subdivisiones').value;
         
         function playMetronome() {
             let nextStart = ms.audioContext.currentTime;
