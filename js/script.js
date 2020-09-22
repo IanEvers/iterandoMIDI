@@ -161,7 +161,7 @@ const comienzo = function() {
 		console.log('MIDI Access Object', midiAccess);
 		midi = midiAccess;
 		const inputs = midi.inputs.values();
-		for(const input = inputs.next(); input && !input.done; input = inputs.next()) {
+		for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
 			input.value.onmidimessage = onMIDIMessage;
 		}
 	}
@@ -263,7 +263,7 @@ const comienzo = function() {
 //utilidad
 	function inArray(needle, haystack) {
 		const length = haystack.length;
-		for(const i = 0; i < length; i++) {
+		for(let i = 0; i < length; i++) {
 			if(haystack[i] == needle) return true;
 		}
 		return false;
