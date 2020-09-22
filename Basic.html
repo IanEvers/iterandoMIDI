@@ -115,33 +115,34 @@
 		*/
 		metronomeApp.setTempo(BPM * subdivisiones);
 	}
-}
 
-//desde aca empieza para hacer sonar sonidos
-//desde aca empieza para hacer sonar sonidos
-//desde aca empieza para hacer sonar sonidos
+	//desde aca empieza para hacer sonar sonidos
 
-function Comienzo() {
-	metronomeApp.toggle();
-	var midi;
-	var AudioContext;
-	var context;
-	var data, cmd, channel, type, note, velocity;
-	var btn = document.getElementsByClassName('button');
-	let notas = [];
-	let audios = [];
-	var canvas = document.getElementById("canvas");
-	var tiempoInicial = new Date();
-	
+	const comienzo = function() {
+		console.log(pulsosPorCompas, subdivisiones)
+		metronomeApp.toggle(pulsosPorCompas, subdivisiones);
+		let midi;
+		let AudioContext;
+		let context;
+		let data, cmd, channel, type, note, velocity;
+		let notas = [];
+		let audios = [];
+		const canvas = document.getElementById("canvas");
+		let tiempoInicial = new Date();
+		
 
-	//DEBUG PARA PROBAR TECLADO DE LA PC	
-	const logKey = function(e) {
-		if(e.key == "k"){
-			player(37, 64);
-			setTimeout(function(){ player(58, 0); }, 3000);
-		} else if(e.key == "j"){
-			player(36, 64);
-			setTimeout(function(){ player(58, 0); }, 3000);
+		//DEBUG PARA PROBAR TECLADO DE LA PC	
+		const logKey = function(e) {
+			if(e.key == "k"){
+				player(37, 64);
+				setTimeout(function(){ player(58, 0); }, 3000);
+			} else if(e.key == "j"){
+				player(36, 64);
+				setTimeout(function(){ player(58, 0); }, 3000);
+			} else if(e.key == "h"){
+				player(55, 64);
+				setTimeout(function(){ player(58, 0); }, 3000);
+			}
 		}
 	}
 	document.addEventListener('keypress', logKey);
