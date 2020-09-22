@@ -69,11 +69,4 @@ class MetronomeApp {
 }
 
 
-
-const metronomeApp = new MetronomeApp( '',
-    ['https://dl.dropboxusercontent.com/s/h9sow482vkw06xe/dinky-kick.mp3',"https://dl.dropboxusercontent.com/s/kkikcupdg9n1qiy/dinky-snare.mp3" ],
-    VisSettings);
-
-
-
-   
+const metronomeApp = new MetronomeApp('', ["./mp3/dinky-kick.mp3","./mp3/dinky-snare.mp3"], VisSettings);
