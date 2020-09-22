@@ -24,35 +24,36 @@
 			</div>
 		</div>
 	</div>
-	<button class="button" id="button" onclick="Comienzo();" data-key="q">Empezar a Tocar</button>
-	<button id="horizontalidad" onclick="orientacion()">Vertical</button>
-	<label for="compasesPantalla"> Compases por pantalla:</label>
-	<input type="text" id="compasesPantalla" value="4" onchange="actualizarTempo()" style="width: 20px; text-align: center;">
-	<label for="pulsosPorCompas"> pulsos por compas:</label>
-	<input type="text" id="pulsosPorCompas" value="4" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
-	<label for="subdivisiones"> Subdivisiones</label>
-	<input type="text" id="subdivisiones" value="2" onchange="actualizarTempo()" style="width: 50px; text-align: center;">
-	<label for="BPM"> BPM:</label>
-	<input type="text" id="BPM" value="60" onchange="actualizarTempo();" style="width: 40px; text-align: center;">
-	<label for="notaMasBaja"> Nota mas baja:</label>
-	<input type="text" id="notaMasBaja" value="37" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
-	<label for="notaMasAlta"> Nota mas alta:</label>
-	<input type="text" id="notaMasAlta" value="85" onchange="actualizarTempo()" style="width: 40px; text-align: center;">
-	<br>
-	
-	<div>
-		<form id="colorSelector">
-			<ul>
-				<input type="color" id="color1" class="color" name="color1" value="#ff0000">
-				<input type="color" id="color2" class="color" name="color2" value="#d400ff">
-				<input type="color" id="color3" class="color" name="color3" value="#1e00ff">
-				<input type="color" id="color4" class="color" name="color4" value="#00ffb7">
-				<input type="color" id="color5" class="color" name="color5" value="#00ff4c">
-				<input type="color" id="color6" class="color" name="color6" value="#fff700">
-			</ul>
-		</form>
-		<canvas id="canvas" width="800" height="800"  style="border:1px solid #000000; align-self: center;">
-	</div>
+
+	<button id="empezarATocar" onclick="comienzo();" data-key="q">Empezar a Tocar</button>
+	<button id="cambiarOrientacion" onclick="cambiarOrientacion();">Vertical</button>
+
+	<form id ="parametrosTempo">
+		<label for="compasesPantalla">Compases por pantalla:</label>
+		<input type="number" id="compasesPantalla" value="4">
+		<label for="pulsosPorCompas">pulsos por compas:</label>
+		<input type="number" id="pulsosPorCompas" value="4">
+		<label for="subdivisiones">Subdivisiones</label>
+		<input type="number" id="subdivisiones" value="2">
+		<label for="BPM">BPM:</label>
+		<input type="number" id="BPM" value="60">
+		<label for="notaMasBaja">Nota mas baja:</label>
+		<input type="number" id="notaMasBaja" value="37">
+		<label for="notaMasAlta">Nota mas alta:</label>
+		<input type="number" id="notaMasAlta" value="85">
+	</form>
+
+	<form id="colorSelector">
+		<input type="color" class="colorInput" value="#ff0000">
+		<input type="color" class="colorInput" value="#d400ff">
+		<input type="color" class="colorInput" value="#1e00ff">
+		<input type="color" class="colorInput" value="#00ffb7">
+		<input type="color" class="colorInput" value="#00ff4c">
+		<input type="color" class="colorInput" value="#fff700">
+	</form>
+
+	<canvas id="canvas" width="800" height="800"  style="border:1px solid #000000; align-self: center;">
+
 	<div id="key_data"></div>
 <script type="text/javascript">
 
