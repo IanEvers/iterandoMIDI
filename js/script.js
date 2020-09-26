@@ -1,7 +1,9 @@
 const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvasFondo = document.getElementById("canvasFondo");
+const ctx = canvas.getContext("2d", { alpha: false });
+const ctxFondo = canvasFondo.getContext("2d", { alpha: false });
 
-const btnOrientacion = document.getElementById('horizontalidad');
+const btnOrientacion = document.getElementById('cambiarOrientacion');
 
 // parametros
 let compasesPantalla = parseInt(document.getElementById('compasesPantalla').value);
@@ -37,10 +39,11 @@ const actualizarColores = function () {
 
 const actualizarGrilla = function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctxFondo.clearRect(0, 0, canvas.width, canvas.height);
     // ctx.rotate(90 * Math.PI / 180);
     
 	for (let i = divisionCanvas; i <= canvas.height; i += divisionCanvas) {
-        
+		ctx.fillStyle = "black";
         if (horizontalidad) {
 			ctx.fillRect( i, 0, 3, canvas.height);
 		} else {
@@ -65,7 +68,8 @@ const actualizarGrilla = function () {
 			}
 		}
         */
-    }
+	}
+	
 }
 
 //desde acá manejo el canvas antes de empezar a tocar
@@ -97,19 +101,19 @@ const comienzo = function() {
 	let audios = [];
 	const canvas = document.getElementById("canvas");
 	let tiempoInicial = new Date();
-	
+	var canvasGuardado = new Array();
 
 	//DEBUG PARA PROBAR TECLADO DE LA PC	
 	const logKey = function(e) {
 		if(e.key == "k"){
 			player(37, 64);
-			setTimeout(function(){ player(58, 0); }, 3000);
+			setTimeout(function(){ player(58, 0); }, 1000);
 		} else if(e.key == "j"){
 			player(36, 64);
-			setTimeout(function(){ player(58, 0); }, 3000);
+			setTimeout(function(){ player(58, 0); }, 1000);
 		} else if(e.key == "h"){
             player(55, 64);
-            setTimeout(function(){ player(58, 0); }, 3000);
+            setTimeout(function(){ player(58, 0); }, 1000);
         }
 	}
 	document.addEventListener('keypress', logKey);
@@ -127,11 +131,15 @@ const comienzo = function() {
 
 		velocidad = (tiempo/1000) / (( pulsosPantallaTotal / BPM) * 60) * canvas.height;
 		ctx.fillStyle = color;
+		ctxFondo.fillStyle = color;
 	
 		if(horizontalidad) {
-			ctx.fillRect(velocidad, 0, 1, 10);
+			ctxFondo.fillRect(velocidad,0,  1, canvas.width);
+			ctxFondo.clearRect(velocidad-10, 0, 10, canvas.width);
+			
 		} else {
-			ctx.fillRect(0, velocidad, 10, 1);
+			ctxFondo.fillRect(0, velocidad, canvas.height, 1);
+			ctxFondo.clearRect(0, velocidad-10, canvas.height, 10);
 		}
 		const tiempo2 = new Date() - tiempoInicial;
 	
@@ -156,6 +164,7 @@ const comienzo = function() {
 	}
 
 	const keyData = document.getElementById('key_data');
+	const guardado = document.getElementById('guardado');
 
 	function onMIDISuccess(midiAccess) {
 		console.log('MIDI Access Object', midiAccess);
@@ -214,7 +223,20 @@ const comienzo = function() {
 				color = colores[indiceColor];
 				return;
 			}
-
+			if(note == notaMasBaja+1) {
+				canvasGuardado = document.getElementById('canvas').toDataURL();
+				guardado.textContent = 'guardado';
+				return;
+			}
+			if(note == notaMasBaja+2) {
+				var canvasPic = new Image();
+				canvasPic.src = canvasGuardado;
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+				guardado.textContent = 'restaurado';
+				return;
+			}
+			
 			if(notas.length < 11) {
 				context = new AudioContext();
 				const oscillator = context.createOscillator();
@@ -300,7 +322,7 @@ const formParametros = document.getElementById("parametrosTempo");
 formParametros.addEventListener("change", function () {
     actualizarParametros();
     actualizarTempo();
-    comienzo();
+   
 });
 
 window.onload = function () {
