@@ -223,10 +223,11 @@ const comienzo = function() {
 				return;
 			}
 			if(note == notaMasBaja) {
-				//if(indiceColor < indicemaximocolor) {
-				indiceColor++;
-				color = colores[indiceColor];
-				return;
+				if(indiceColor < colorInputs.length) {
+					indiceColor++;
+					color = colores[indiceColor];
+					return;
+				}
 			}
 			if(note == notaMasBaja+1) {
 				colores[indiceColor]=  shadeColor(colores[indiceColor], -10);
