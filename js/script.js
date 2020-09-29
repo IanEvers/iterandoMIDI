@@ -359,14 +359,35 @@ const comienzo = function() {
 
 }
 
-const colorSelector = document.getElementById("colorSelector");
-colorSelector.addEventListener("change", actualizarColores);
+
+colorSelector.addEventListener("change", function (e) {
+	actualizarColores();
+});
+
+colorSelector.addEventListener("click", function(e) {
+	if (e.target.id === "addColor") {
+		const addColor = document.getElementById("addColor");
+		const clone = addColor.cloneNode();
+		addColor.parentElement.removeChild(addColor);
+
+		const newRGB = "#" + Math.floor(Math.random()*16777215).toString(16);
+	
+		const newInput = document.createElement("input");
+		newInput.setAttribute("type", "color");
+		newInput.classList.add("colorInput");
+		newInput.setAttribute("value", newRGB)
+		colorSelector.appendChild(newInput);
+	
+		colorSelector.appendChild(clone);
+		actualizarColores();
+	}
+
+})
 
 const formParametros = document.getElementById("parametrosTempo");
 formParametros.addEventListener("change", function () {
     actualizarParametros();
     actualizarTempo();
-   
 });
 
 window.onload = function () {
