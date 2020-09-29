@@ -109,13 +109,13 @@ const comienzo = function() {
 	const logKey = function(e) {
 		if(e.key == "k"){
 			player(37, 64);
-			setTimeout(function(){ player(58, 0); }, 1000);
+			setTimeout(function(){ player(37, 0); }, 1000);
 		} else if(e.key == "j"){
 			player(36, 64);
-			setTimeout(function(){ player(58, 0); }, 1000);
+			setTimeout(function(){ player(36, 0); }, 1000);
 		} else if(e.key == "h"){
             player(55, 64);
-            setTimeout(function(){ player(58, 0); }, 1000);
+            setTimeout(function(){ player(55, 0); }, 1000);
         }
 	}
 	document.addEventListener('keypress', logKey);
