@@ -100,8 +100,10 @@ const comienzo = function() {
 	let notas = [];
 	let audios = [];
 	const canvas = document.getElementById("canvas");
+	let color1 = document.getElementById("color1");
 	let tiempoInicial = new Date();
 	var canvasGuardado = new Array();
+	var guardadoBool = false;
 
 	//DEBUG PARA PROBAR TECLADO DE LA PC	
 	const logKey = function(e) {
@@ -214,30 +216,48 @@ const comienzo = function() {
 			return;
 		} else {
 			if(note == notaMasBaja-1) {
-				indiceColor--;
-				color = colores[indiceColor];
+				if(indiceColor > 0) {
+					indiceColor--;
+					color = colores[indiceColor];
+				}
 				return;
 			}
 			if(note == notaMasBaja) {
+				//if(indiceColor < indicemaximocolor) {
 				indiceColor++;
 				color = colores[indiceColor];
 				return;
 			}
 			if(note == notaMasBaja+1) {
+				colores[indiceColor]=  shadeColor(colores[indiceColor], -10);
+				color = colores[indiceColor];
+				color1.value = color;
+				return;
+			}
+			if(note == notaMasBaja+2) {
+				colores[indiceColor]=  shadeColor(colores[indiceColor], 10);
+				color = colores[indiceColor];
+				color1.value = color;
+				return;
+			}
+			if(note == notaMasBaja+3) {
+				guardadoBool = true;
 				canvasGuardado = document.getElementById('canvas').toDataURL();
 				guardado.textContent = 'guardado';
 				return;
 			}
-			if(note == notaMasBaja+2) {
-				var canvasPic = new Image();
-				canvasPic.src = canvasGuardado;
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-				guardado.textContent = 'restaurado';
-				return;
+			if(note == notaMasBaja+4) {
+				if(guardadoBool == true) {
+					var canvasPic = new Image();
+					canvasPic.src = canvasGuardado;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+					guardado.textContent = 'restaurado';
+					return;
+				}
 			}
-			
-			if(notas.length < 11) {
+
+			if(notas.length < 15) {
 				context = new AudioContext();
 				const oscillator = context.createOscillator();
 				oscillator.type = "sine";
@@ -289,6 +309,27 @@ const comienzo = function() {
 			if(haystack[i] == needle) return true;
 		}
 		return false;
+	}
+
+	function shadeColor(color, percent) {
+
+		var R = parseInt(color.substring(1,3),16);
+		var G = parseInt(color.substring(3,5),16);
+		var B = parseInt(color.substring(5,7),16);
+	
+		R = parseInt(R * (100 + percent) / 100);
+		G = parseInt(G * (100 + percent) / 100);
+		B = parseInt(B * (100 + percent) / 100);
+	
+		R = (R<255)?R:255;  
+		G = (G<255)?G:255;  
+		B = (B<255)?B:255;  
+	
+		var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+		var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+		var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+		console.log("#"+RR+GG+BB);
+		return "#"+RR+GG+BB;
 	}
 
 	function noteOn(midiNote, velocity) {
