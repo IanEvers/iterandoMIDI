@@ -232,13 +232,13 @@ const comienzo = function() {
 				}
 			}
 			if(note == notaMasBaja+1) {
-				colores[indiceColor]=  shadeColor(colores[indiceColor], -10);
+				colores[indiceColor] = shadeColor(colores[indiceColor], -10);
 				color = colores[indiceColor];
 				color1.value = color;
 				return;
 			}
 			if(note == notaMasBaja+2) {
-				colores[indiceColor]=  shadeColor(colores[indiceColor], 10);
+				colores[indiceColor] = shadeColor(colores[indiceColor], 10);
 				color = colores[indiceColor];
 				color1.value = color;
 				return;
