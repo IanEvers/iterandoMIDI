@@ -12,7 +12,7 @@ let subdivisiones = parseInt(document.getElementById('subdivisiones').value);
 let BPM = parseInt(document.getElementById('BPM').value);
 let notaMasBaja = parseInt(document.getElementById('notaMasBaja').value);
 let notaMasAlta = parseInt(document.getElementById('notaMasAlta').value);
-let rangoNotas = parseInt(notaMasAlta - notaMasBaja);
+let rangoNotas = parseInt(notaMasAlta - notaMasBaja - 5);
 let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
 
 // user settings
@@ -294,9 +294,9 @@ const comienzo = function() {
 			if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
 				ctx.fillStyle = color;
 				if(horizontalidad) {
-					ctx.fillRect(velocidad, ((notaActual - notaMasBaja) / rangoNotas)* canvas.height, 5, 10);
+					ctx.fillRect(velocidad, ((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height, 5, 10);
 				} else {
-					ctx.fillRect(((notaActual - notaMasBaja) / rangoNotas)* canvas.height,velocidad, 10, 5);
+					ctx.fillRect(((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height,velocidad, 10, 5);
 				}
 			}
 		}
