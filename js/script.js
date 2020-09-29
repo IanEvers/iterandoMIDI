@@ -5,6 +5,9 @@ const ctxFondo = canvasFondo.getContext("2d", { alpha: false });
 
 const btnOrientacion = document.getElementById('cambiarOrientacion');
 
+const colorSelector = document.getElementById("colorSelector");
+const colorInputs = colorSelector.getElementsByClassName("colorInput");
+
 // parametros
 let compasesPantalla = parseInt(document.getElementById('compasesPantalla').value);
 let pulsosPorCompas = parseInt(document.getElementById('pulsosPorCompas').value);
@@ -31,10 +34,9 @@ const actualizarParametros = function() {
 }
 
 const actualizarColores = function () {
-	const inputs = colorSelector.getElementsByClassName("colorInput");
-	for(let i = 0; i < inputs.length; i++) {
-		colores[i] = inputs[i].value;
-    }
+	for(let i = 0; i < colorInputs.length; i++) {
+		colores[i] = colorInputs[i].value;
+	}
 }
 
 const actualizarGrilla = function () {
