@@ -17,6 +17,10 @@ let notaMasBaja = parseInt(document.getElementById('notaMasBaja').value);
 let notaMasAlta = parseInt(document.getElementById('notaMasAlta').value);
 let rangoNotas = parseInt(notaMasAlta - notaMasBaja - 5);
 let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
+//contador de colores
+let color1 = document.getElementById("color1");
+let coloresInputs = [];
+coloresInputs.push(color1);
 
 // user settings
 let horizontalidad = false;
@@ -93,7 +97,6 @@ const actualizarTempo = function() {
 //desde aca empieza para hacer sonar sonidos
 
 const comienzo = function() {
-    console.log(pulsosPorCompas, subdivisiones)
 	metronomeApp.toggle(pulsosPorCompas, subdivisiones);
 	let midi;
 	let AudioContext;
@@ -102,10 +105,11 @@ const comienzo = function() {
 	let notas = [];
 	let audios = [];
 	const canvas = document.getElementById("canvas");
-	let color1 = document.getElementById("color1");
 	let tiempoInicial = new Date();
 	var canvasGuardado = new Array();
 	var guardadoBool = false;
+	
+	
 
 	//DEBUG PARA PROBAR TECLADO DE LA PC	
 	const logKey = function(e) {
@@ -228,19 +232,20 @@ const comienzo = function() {
 				if(indiceColor < colorInputs.length) {
 					indiceColor++;
 					color = colores[indiceColor];
+					
 					return;
 				}
 			}
 			if(note == notaMasBaja+1) {
 				colores[indiceColor] = shadeColor(colores[indiceColor], -10);
 				color = colores[indiceColor];
-				color1.value = color;
+				coloresInputs[indiceColor].value = color;
 				return;
 			}
 			if(note == notaMasBaja+2) {
 				colores[indiceColor] = shadeColor(colores[indiceColor], 10);
 				color = colores[indiceColor];
-				color1.value = color;
+				coloresInputs[indiceColor].value = color;
 				return;
 			}
 			if(note == notaMasBaja+3) {
@@ -331,7 +336,6 @@ const comienzo = function() {
 		var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
 		var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
 		var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-		console.log("#"+RR+GG+BB);
 		return "#"+RR+GG+BB;
 	}
 
@@ -375,7 +379,9 @@ colorSelector.addEventListener("click", function(e) {
 		const newInput = document.createElement("input");
 		newInput.setAttribute("type", "color");
 		newInput.classList.add("colorInput");
-		newInput.setAttribute("value", newRGB)
+		newInput.setAttribute("value", newRGB);
+		coloresInputs.push(newInput);
+
 		colorSelector.appendChild(newInput);
 	
 		colorSelector.appendChild(clone);
