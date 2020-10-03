@@ -69,4 +69,4 @@ class MetronomeApp {
 }
 
 
-const metronomeApp = new MetronomeApp('', ["./mp3/dinky-kick.mp3","./mp3/0468.wav"], VisSettings);
+const metronomeApp = new MetronomeApp('', ["./mp3/dinky-kick.mp3","./mp3/metronomo.wav"], VisSettings);
