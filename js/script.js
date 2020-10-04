@@ -17,6 +17,8 @@ let notaMasBaja = parseInt(document.getElementById('notaMasBaja').value);
 let notaMasAlta = parseInt(document.getElementById('notaMasAlta').value);
 let rangoNotas = parseInt(notaMasAlta - notaMasBaja - 5);
 let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
+let metronomoPrendido = document.getElementById('metronomoToggle').checked;
+let volumen = document.getElementById('volumenControl').value;
 //contador de colores
 let color1 = document.getElementById("color1");
 let coloresInputs = [];
@@ -27,14 +29,16 @@ let horizontalidad = false;
 let colores = [];
 
 const actualizarParametros = function() {
-    compasesPantalla = document.getElementById('compasesPantalla').value;
+	compasesPantalla = document.getElementById('compasesPantalla').value;
     pulsosPorCompas = document.getElementById('pulsosPorCompas').value;
     subdivisiones = document.getElementById('subdivisiones').value;
     BPM = document.getElementById('BPM').value;
     notaMasBaja = document.getElementById('notaMasBaja').value;
     notaMasAlta = document.getElementById('notaMasAlta').value;
     rangoNotas = notaMasAlta - notaMasBaja;
-    divisionCanvas = (canvas.height / parseInt(compasesPantalla));
+	divisionCanvas = (canvas.height / parseInt(compasesPantalla));
+	metronomoPrendido = document.getElementById('metronomoToggle').checked;
+	volumen = document.getElementById('volumenControl').value;
 }
 
 const actualizarColores = function () {
@@ -97,7 +101,9 @@ const actualizarTempo = function() {
 //desde aca empieza para hacer sonar sonidos
 
 const comienzo = function() {
-	metronomeApp.toggle(pulsosPorCompas, subdivisiones);
+	if(metronomoPrendido) {
+		metronomeApp.toggle(pulsosPorCompas, subdivisiones);
+	}
 	let midi;
 	let AudioContext;
 	let context;
@@ -232,7 +238,6 @@ const comienzo = function() {
 				if(indiceColor < colorInputs.length) {
 					indiceColor++;
 					color = colores[indiceColor];
-					
 					return;
 				}
 			}
@@ -267,10 +272,13 @@ const comienzo = function() {
 
 			if(notas.length < 15) {
 				context = new AudioContext();
+				var gainNode = context.createGain();
 				const oscillator = context.createOscillator();
 				oscillator.type = "sine";
 				oscillator.frequency.value = frequencyFromNoteNumber(note);
-				oscillator.connect(context.destination);
+				oscillator.connect(gainNode);
+				gainNode.gain.setValueAtTime(volumen, context.currentTime);
+				gainNode.connect(context.destination);
 				notas.push(oscillator); 
 				audios.push(note); 
 				oscillator.start(0);
@@ -278,9 +286,7 @@ const comienzo = function() {
 			} else {
 				let i;
 				for(i = notas.length - 1; i >= 0; i--) {
-				
 					if(Math.round(notas[i].frequency.value) == 0) {
-						
 						notas[i].frequency.value = frequencyFromNoteNumber(note);
 						audios.push(note); 
 						break;
