@@ -135,32 +135,33 @@ const comienzo = function() {
 	let indiceColor = 0;
 	let color = colores[indiceColor];
 	
-	const tiempo = new Date() - tiempoInicial;
-	setInterval(timer, tiempo);
-
 	const pulsosPantallaTotal = compasesPantalla * pulsosPorCompas;
-
-	function timer() {
+	lineaFondo();
+	function borrarLinea() {
+		if(horizontalidad) {
+			ctxFondo.clearRect(velocidad-2, 0, 1, canvas.width);
+		} else {
+			ctxFondo.clearRect(0, velocidad-2, canvas.height, 1);
+		}
+	}
+	function lineaFondo() {
 		const tiempo = new Date() - tiempoInicial;
-
 		velocidad = (tiempo/1000) / (( pulsosPantallaTotal / BPM) * 60) * canvas.height;
+		borrarLinea();
 		ctx.fillStyle = color;
 		ctxFondo.fillStyle = color;
-	
 		if(horizontalidad) {
 			ctxFondo.fillRect(velocidad,0,  1, canvas.width);
-			ctxFondo.clearRect(velocidad-10, 0, 10, canvas.width);
-			
 		} else {
 			ctxFondo.fillRect(0, velocidad, canvas.height, 1);
-			ctxFondo.clearRect(0, velocidad-10, canvas.height, 10);
 		}
-		const tiempo2 = new Date() - tiempoInicial;
-	
 		if(velocidad > canvas.height) {
 			tiempoInicial = new Date();
 		}
+		window.requestAnimationFrame(lineaFondo);
 	}
+
+
 	
 	try {
 		AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -270,7 +271,7 @@ const comienzo = function() {
 				}
 			}
 
-			if(notas.length < 15) {
+			if(notas.length < 11) {
 				context = new AudioContext();
 				var gainNode = context.createGain();
 				const oscillator = context.createOscillator();
@@ -301,7 +302,7 @@ const comienzo = function() {
 		const ctxNota = canvas.getContext("2d");
 		tiempoInicial2 = new Date();
 		const tiempo3 = new Date() - tiempoInicial2;
-		setInterval(nota, tiempo3);
+		nota();
 		function nota() {
 			const tiempo3 = new Date() - tiempoInicial;
 		
@@ -312,6 +313,7 @@ const comienzo = function() {
 				} else {
 					ctx.fillRect(((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height,velocidad, 10, 5);
 				}
+				window.requestAnimationFrame(nota);
 			}
 		}
 	}
