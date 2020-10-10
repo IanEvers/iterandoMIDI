@@ -17,6 +17,8 @@ let notaMasBaja = parseInt(document.getElementById('notaMasBaja').value);
 let notaMasAlta = parseInt(document.getElementById('notaMasAlta').value);
 let rangoNotas = parseInt(notaMasAlta - notaMasBaja - 5);
 let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
+let metronomoPrendido = document.getElementById('metronomoToggle').checked;
+let volumen = document.getElementById('volumenControl').value;
 //contador de colores
 let color1 = document.getElementById("color1");
 let coloresInputs = [];
@@ -27,14 +29,16 @@ let horizontalidad = false;
 let colores = [];
 
 const actualizarParametros = function() {
-    compasesPantalla = document.getElementById('compasesPantalla').value;
+	compasesPantalla = document.getElementById('compasesPantalla').value;
     pulsosPorCompas = document.getElementById('pulsosPorCompas').value;
     subdivisiones = document.getElementById('subdivisiones').value;
     BPM = document.getElementById('BPM').value;
     notaMasBaja = document.getElementById('notaMasBaja').value;
     notaMasAlta = document.getElementById('notaMasAlta').value;
     rangoNotas = notaMasAlta - notaMasBaja;
-    divisionCanvas = (canvas.height / parseInt(compasesPantalla));
+	divisionCanvas = (canvas.height / parseInt(compasesPantalla));
+	metronomoPrendido = document.getElementById('metronomoToggle').checked;
+	volumen = document.getElementById('volumenControl').value;
 }
 
 const actualizarColores = function () {
@@ -97,7 +101,9 @@ const actualizarTempo = function() {
 //desde aca empieza para hacer sonar sonidos
 
 const comienzo = function() {
-	metronomeApp.toggle(pulsosPorCompas, subdivisiones);
+	if(metronomoPrendido) {
+		metronomeApp.toggle(pulsosPorCompas, subdivisiones);
+	}
 	let midi;
 	let AudioContext;
 	let context;
@@ -129,32 +135,33 @@ const comienzo = function() {
 	let indiceColor = 0;
 	let color = colores[indiceColor];
 	
-	const tiempo = new Date() - tiempoInicial;
-	setInterval(timer, tiempo);
-
 	const pulsosPantallaTotal = compasesPantalla * pulsosPorCompas;
-
-	function timer() {
+	lineaFondo();
+	function borrarLinea() {
+		if(horizontalidad) {
+			ctxFondo.clearRect(velocidad-2, 0, 1, canvas.width);
+		} else {
+			ctxFondo.clearRect(0, velocidad-2, canvas.height, 1);
+		}
+	}
+	function lineaFondo() {
 		const tiempo = new Date() - tiempoInicial;
-
 		velocidad = (tiempo/1000) / (( pulsosPantallaTotal / BPM) * 60) * canvas.height;
+		borrarLinea();
 		ctx.fillStyle = color;
 		ctxFondo.fillStyle = color;
-	
 		if(horizontalidad) {
 			ctxFondo.fillRect(velocidad,0,  1, canvas.width);
-			ctxFondo.clearRect(velocidad-10, 0, 10, canvas.width);
-			
 		} else {
 			ctxFondo.fillRect(0, velocidad, canvas.height, 1);
-			ctxFondo.clearRect(0, velocidad-10, canvas.height, 10);
 		}
-		const tiempo2 = new Date() - tiempoInicial;
-	
 		if(velocidad > canvas.height) {
 			tiempoInicial = new Date();
 		}
+		window.requestAnimationFrame(lineaFondo);
 	}
+
+
 	
 	try {
 		AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -232,7 +239,6 @@ const comienzo = function() {
 				if(indiceColor < colorInputs.length) {
 					indiceColor++;
 					color = colores[indiceColor];
-					
 					return;
 				}
 			}
@@ -265,12 +271,15 @@ const comienzo = function() {
 				}
 			}
 
-			if(notas.length < 15) {
+			if(notas.length < 11) {
 				context = new AudioContext();
+				var gainNode = context.createGain();
 				const oscillator = context.createOscillator();
 				oscillator.type = "sine";
 				oscillator.frequency.value = frequencyFromNoteNumber(note);
-				oscillator.connect(context.destination);
+				oscillator.connect(gainNode);
+				gainNode.gain.setValueAtTime(volumen, context.currentTime);
+				gainNode.connect(context.destination);
 				notas.push(oscillator); 
 				audios.push(note); 
 				oscillator.start(0);
@@ -278,9 +287,7 @@ const comienzo = function() {
 			} else {
 				let i;
 				for(i = notas.length - 1; i >= 0; i--) {
-				
 					if(Math.round(notas[i].frequency.value) == 0) {
-						
 						notas[i].frequency.value = frequencyFromNoteNumber(note);
 						audios.push(note); 
 						break;
@@ -295,7 +302,7 @@ const comienzo = function() {
 		const ctxNota = canvas.getContext("2d");
 		tiempoInicial2 = new Date();
 		const tiempo3 = new Date() - tiempoInicial2;
-		setInterval(nota, tiempo3);
+		nota();
 		function nota() {
 			const tiempo3 = new Date() - tiempoInicial;
 		
@@ -306,6 +313,7 @@ const comienzo = function() {
 				} else {
 					ctx.fillRect(((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height,velocidad, 10, 5);
 				}
+				window.requestAnimationFrame(nota);
 			}
 		}
 	}
