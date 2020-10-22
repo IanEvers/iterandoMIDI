@@ -44,6 +44,9 @@
 		<label for="volumenControl">Volumen:</label>
 		<input type="range" min="0.0" max="1.0" step="0.01"
 		value="0.8" name="volume" id="volumenControl">
+		<label for="grosorLinea">grosor de línea:</label>
+		<input type="range" min="1" max="30.0" step="1"
+		value="10" name="volume" id="grosorLinea">
 		<label for="metronomoToggle">Metronomo</label>
 		<label class="switch"> 
 			<input type="checkbox" id="metronomoToggle">
@@ -59,13 +62,10 @@
 
 	
 	<div style="position: relative;">
-		<canvas id="canvas" width="800" height="800" style="position: absolute; left: 550px; top: 0; z-index: 1; border:1px solid #000000; align-self: center;"></canvas>
-		<canvas id="canvasFondo" width="800" height="800" style="position: absolute; left: 550px; top: 0; z-index: 0; border:1px solid #000000; align-self: center;"></canvas>
+		<canvas id="canvas" width="800" height="800" style="position: absolute; left: 550px; top: 0;  border:1px solid #000000; align-self: center;"></canvas>
+		<canvas id="canvasFondo" width="800" height="800" style="position: absolute; left: 550px; top: 0;  border:1px solid #000000; align-self: center;"></canvas>
 	</div>
 	
-		
-
-
 
 	<script type="text/javascript" src="js/script.js"></script>
 </body>

@@ -1,5 +1,29 @@
 body {
-    margin: 0px;
+    margin: 0;
+    font-size: 1.125rem;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.canvas-container {
+    position: relative;
+    margin: 0 auto;
+}   
+
+canvas {
+    position: absolute;
+    left: 550px;
+    top: 0;
+    border:1px solid #000000;
+    align-self: center;
+}
+
+#canvas {
+    z-index: 1;
+}
+
+#canvasFondo {
+    z-index: 0;
 }
 
 #parametrosTempo > input {
