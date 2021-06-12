@@ -1,33 +1,24 @@
 <!DOCTYPE html>
-<html xmlns = "http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-	
-	<script src="metronome-sound.js"></script>
-	<script src="visualization.js"></script>
-	<script src="app.js"></script>
-
-	<link href="css/style.css" rel="stylesheet" type="text/css">
-
-</head>
-<body  style="text-align: center;">
-
-	<h3>Clickeame Broker</h3>
-	<div class="container">
-		<h1>Metronome</h1>
-		<div class="row">
-				
-			</div>
-			<div id='visualization' class="col-sm">
-			</div>
-		</div>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="content-type" content="text/html"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="metronome-sound.js"></script>
+		<script src="visualization.js"></script>
+		<script src="app.js"></script>
+		<title>Metronome</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css">
+	</head>
+<body>
+	<div id='visualization' class="col-sm"></div>
+	<h1>Metronome</h1>
+	<h2 class="subtitle">Clickeame Broker</h2>
+	<div class="player">
+		<button id="empezarATocar" onclick="comienzo();" data-key="q">Empezar a Tocar</button>
+		<button id="cambiarOrientacion" onclick="cambiarOrientacion();">Vertical</button>
 	</div>
-
-	<button id="empezarATocar" onclick="comienzo();" data-key="q">Empezar a Tocar</button>
-	<button id="cambiarOrientacion" onclick="cambiarOrientacion();">Vertical</button>
-
 	<form id ="parametrosTempo">
 		<label for="compasesPantalla">Compases por pantalla:</label>
 		<input type="number" id="compasesPantalla" value="4">
@@ -42,11 +33,7 @@
 		<label for="notaMasAlta">Nota mas alta:</label>
 		<input type="number" id="notaMasAlta" value="85">
 		<label for="volumenControl">Volumen:</label>
-		<input type="range" min="0.0" max="1.0" step="0.01"
-		value="0.8" name="volume" id="volumenControl">
-		<label for="grosorLinea">grosor de línea:</label>
-		<input type="range" min="1" max="30.0" step="1"
-		value="10" name="volume" id="grosorLinea">
+		<input type="range" min="0.0" max="1.0" step="0.01" value="0.8" name="volume" id="volumenControl">
 		<label for="metronomoToggle">Metronomo</label>
 		<label class="switch"> 
 			<input type="checkbox" id="metronomoToggle">
@@ -59,14 +46,10 @@
 		<input type="color" class="colorInput" value="#ff0000" id="color1">
 		<input type="button" id ="addColor" value="Agregar color">
 	</form>
-
-	
-	<div style="position: relative;">
-		<canvas id="canvas" width="800" height="800" style="position: absolute; left: 550px; top: 0;  border:1px solid #000000; align-self: center;"></canvas>
-		<canvas id="canvasFondo" width="800" height="800" style="position: absolute; left: 550px; top: 0;  border:1px solid #000000; align-self: center;"></canvas>
+	<div class="container canvas-container">
+		<canvas id="canvas" height="800" width="800"></canvas>
+		<canvas id="canvasFondo" height="800" width="800"></canvas>
 	</div>
-	
-
 	<script type="text/javascript" src="js/script.js"></script>
 </body>
 </html>

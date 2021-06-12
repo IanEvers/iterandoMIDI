@@ -1,5 +1,3 @@
-"use strict"
-
 const canvas = document.getElementById("canvas");
 const canvasFondo = document.getElementById("canvasFondo");
 const ctx = canvas.getContext("2d", { alpha: false });
@@ -9,12 +7,7 @@ const btnOrientacion = document.getElementById('cambiarOrientacion');
 
 const colorSelector = document.getElementById("colorSelector");
 const colorInputs = colorSelector.getElementsByClassName("colorInput");
-let midi;
-let data, cmd, channel, type, note, velocity;
 
-var cambiarNotaMasBaja = false;
-var cambiarNotaMasAlta = false;
-var nuevoValor;
 // parametros
 let compasesPantalla = parseInt(document.getElementById('compasesPantalla').value);
 let pulsosPorCompas = parseInt(document.getElementById('pulsosPorCompas').value);
@@ -26,25 +19,10 @@ let rangoNotas = parseInt(notaMasAlta - notaMasBaja - 5);
 let divisionCanvas = parseInt((canvas.height / parseInt(compasesPantalla)));
 let metronomoPrendido = document.getElementById('metronomoToggle').checked;
 let volumen = document.getElementById('volumenControl').value;
-let grosorLinea = document.getElementById('grosorLinea').value;
 //contador de colores
 let color1 = document.getElementById("color1");
 let coloresInputs = [];
 coloresInputs.push(color1);
-
-//variables de funcion
-	
-let AudioContext;
-let context;
-let notas = [];
-let audios = [];
-var canvasGuardado = new Array();
-var guardadoBool = false;
-let tiempoInicial2;
-let color;
-let velocidad;
-let tiempoInicial;
-let indiceColor = 0;
 
 // user settings
 let horizontalidad = false;
@@ -61,7 +39,6 @@ const actualizarParametros = function() {
 	divisionCanvas = (canvas.height / parseInt(compasesPantalla));
 	metronomoPrendido = document.getElementById('metronomoToggle').checked;
 	volumen = document.getElementById('volumenControl').value;
-	grosorLinea = document.getElementById('grosorLinea').value;
 }
 
 const actualizarColores = function () {
@@ -127,9 +104,17 @@ const comienzo = function() {
 	if(metronomoPrendido) {
 		metronomeApp.toggle(pulsosPorCompas, subdivisiones);
 	}
+	let midi;
+	let AudioContext;
+	let context;
+	let data, cmd, channel, type, note, velocity;
+	let notas = [];
+	let audios = [];
+	const canvas = document.getElementById("canvas");
+	let tiempoInicial = new Date();
+	var canvasGuardado = new Array();
+	var guardadoBool = false;
 	
-	color = colores[indiceColor];
-	tiempoInicial = new Date();
 	
 
 	//DEBUG PARA PROBAR TECLADO DE LA PC	
@@ -147,7 +132,8 @@ const comienzo = function() {
 	}
 	document.addEventListener('keypress', logKey);
 	// FIN DEL DEBUG PARA PROBAR TECLADO DE LA PC
-
+	let indiceColor = 0;
+	let color = colores[indiceColor];
 	
 	const pulsosPantallaTotal = compasesPantalla * pulsosPorCompas;
 	lineaFondo();
@@ -174,206 +160,217 @@ const comienzo = function() {
 		}
 		window.requestAnimationFrame(lineaFondo);
 	}
-}
+
 
 	
-
-
-
-
-
-//utilidad
-const inArray = function(needle, haystack) {
-	const length = haystack.length;
-	for(let i = 0; i < length; i++) {
-		if(haystack[i] == needle) return true;
+	try {
+		AudioContext = window.AudioContext || window.webkitAudioContext;
+		context = new AudioContext();
 	}
-	return false;
-}
+	catch(e) {
+		alert('Web Audio API is not supported in this browser');
+	}
+	if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({
+        sysex: false 
+    }).then(onMIDISuccess, onMIDIFailure);
+	} else {
+		alert("No MIDI support in your browser.");
+	}
 
-const  pintar = function(oscillator, notaActual) {
-	const ctxNota = canvas.getContext("2d");
-	tiempoInicial2 = new Date();
-	const tiempo3 = new Date() - tiempoInicial2;
-	nota();
-	function nota() {
-		const tiempo3 = new Date() - tiempoInicial;
-	
-		if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
-			ctx.fillStyle = color;
-			if(horizontalidad) {
-				ctx.fillRect(velocidad, ((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height, 5, grosorLinea);
-			} else {
-				ctx.fillRect(((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height,velocidad, grosorLinea, 5);
-			}
-			window.requestAnimationFrame(nota);
+	const keyData = document.getElementById('key_data');
+	const guardado = document.getElementById('guardado');
+
+	function onMIDISuccess(midiAccess) {
+		console.log('MIDI Access Object', midiAccess);
+		midi = midiAccess;
+		const inputs = midi.inputs.values();
+		for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
+			input.value.onmidimessage = onMIDIMessage;
 		}
 	}
-}
 
-const shadeColor = function(color, percent) {
+	function onMIDIMessage(event) {
+		data = event.data,
+		cmd = data[0] >> 4,
+		channel = data[0] & 0xf,
+		type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
+		note = data[1],
+		velocity = data[2];
+		function onMIDIMessage(message) {
+			data = message.data; // this gives us our [command/channel, note, velocity] data.
+			console.log('MIDI data', data); // MIDI data [144, 63, 73]
+		}
+		switch (type) {
+			case 144: // noteOn message 
+				noteOn(note, velocity);
+				break;
+			case 128: // noteOff message 
+				noteOff(note, velocity);
+				break;
+		}
+    //console.log('data', data, 'cmd', cmd, 'channel', channel);
+        logger(keyData, 'key data', data);
+	}
 
-	var R = parseInt(color.substring(1,3),16);
-	var G = parseInt(color.substring(3,5),16);
-	var B = parseInt(color.substring(5,7),16);
 
-	R = parseInt(R * (100 + percent) / 100);
-	G = parseInt(G * (100 + percent) / 100);
-	B = parseInt(B * (100 + percent) / 100);
-
-	R = (R<255)?R:255;  
-	G = (G<255)?G:255;  
-	B = (B<255)?B:255;  
-
-	var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-	var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-	var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-	return "#"+RR+GG+BB;
-}
-
-const  frequencyFromNoteNumber = function(note) {
-	return 440 * Math.pow(2, (note - 69) / 12);
-}
-
-const player = function(note, velocity) {
-	if (type == (0x80 & 0xf0) || velocity == 0) {
-		for (let i = notas.length - 1; i >= 0; i--) {
-			if (Math.round(notas[i].frequency.value) == Math.round(frequencyFromNoteNumber(note))) {
-				notas[i].frequency.value = 0;
-				for (let i = audios.length - 1; i >= 0; i--) {
-					if (Math.round(frequencyFromNoteNumber(audios[i])) == Math.round(frequencyFromNoteNumber(note))) {
-						audios.splice(i, 1);
+	function player(note, velocity) {
+		if (type == (0x80 & 0xf0) || velocity == 0) {
+			for (let i = notas.length - 1; i >= 0; i--) {
+				if (Math.round(notas[i].frequency.value) == Math.round(frequencyFromNoteNumber(note))) {
+					notas[i].frequency.value = 0;
+					for (let i = audios.length - 1; i >= 0; i--) {
+						if (Math.round(frequencyFromNoteNumber(audios[i])) == Math.round(frequencyFromNoteNumber(note))) {
+							audios.splice(i, 1);
+						}
 					}
 				}
 			}
-		}
-		return;
-	} else {
-		if(note == notaMasBaja-1) {
-			if(indiceColor > 0) {
-				indiceColor--;
-				color = colores[indiceColor];
-			}
 			return;
-		}
-		if(note == notaMasBaja) {
-			if(indiceColor < colorInputs.length-1) {
-				indiceColor++;
-				color = colores[indiceColor];
-				return;
-			}
-		}
-		if(note == notaMasBaja+1) {
-			colores[indiceColor] = shadeColor(colores[indiceColor], -10);
-			color = colores[indiceColor];
-			coloresInputs[indiceColor].value = color;
-			return;
-		}
-		if(note == notaMasBaja+2) {
-			colores[indiceColor] = shadeColor(colores[indiceColor], 10);
-			color = colores[indiceColor];
-			coloresInputs[indiceColor].value = color;
-			return;
-		}
-		if(note == notaMasBaja+3) {
-			guardadoBool = true;
-			canvasGuardado = document.getElementById('canvas').toDataURL();
-			guardado.textContent = 'guardado';
-			return;
-		}
-		if(note == notaMasBaja+4) {
-			if(guardadoBool == true) {
-				var canvasPic = new Image();
-				canvasPic.src = canvasGuardado;
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-				guardado.textContent = 'restaurado';
-				return;
-			}
-		}
-
-		if(notas.length < 11) {
-			context = new AudioContext();
-			var gainNode = context.createGain();
-			const oscillator = context.createOscillator();
-			oscillator.type = "sine";
-			oscillator.frequency.value = frequencyFromNoteNumber(note);
-			oscillator.connect(gainNode);
-			gainNode.gain.setValueAtTime(volumen, context.currentTime);
-			gainNode.connect(context.destination);
-			notas.push(oscillator); 
-			audios.push(note); 
-			oscillator.start(0);
-			pintar(oscillator, note);
 		} else {
-			let i;
-			for(i = notas.length - 1; i >= 0; i--) {
-				if(Math.round(notas[i].frequency.value) == 0) {
-					notas[i].frequency.value = frequencyFromNoteNumber(note);
-					audios.push(note); 
-					break;
+			if(note == notaMasBaja-1) {
+				if(indiceColor > 0) {
+					indiceColor--;
+					color = colores[indiceColor];
+				}
+				return;
+			}
+			if(note == notaMasBaja) {
+				if(indiceColor < colorInputs.length) {
+					indiceColor++;
+					color = colores[indiceColor];
+					return;
 				}
 			}
-			pintar(notas[i], note);
+			if(note == notaMasBaja+1) {
+				colores[indiceColor] = shadeColor(colores[indiceColor], -10);
+				color = colores[indiceColor];
+				coloresInputs[indiceColor].value = color;
+				return;
+			}
+			if(note == notaMasBaja+2) {
+				colores[indiceColor] = shadeColor(colores[indiceColor], 10);
+				color = colores[indiceColor];
+				coloresInputs[indiceColor].value = color;
+				return;
+			}
+			if(note == notaMasBaja+3) {
+				guardadoBool = true;
+				canvasGuardado = document.getElementById('canvas').toDataURL();
+				guardado.textContent = 'guardado';
+				return;
+			}
+			if(note == notaMasBaja+4) {
+				if(guardadoBool == true) {
+					var canvasPic = new Image();
+					canvasPic.src = canvasGuardado;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+					guardado.textContent = 'restaurado';
+					return;
+				}
+			}
+
+			if(notas.length < 11) {
+				context = new AudioContext();
+				var gainNode = context.createGain();
+				const oscillator = context.createOscillator();
+				oscillator.type = "sine";
+				oscillator.frequency.value = frequencyFromNoteNumber(note);
+				oscillator.connect(gainNode);
+				gainNode.gain.setValueAtTime(volumen, context.currentTime);
+				gainNode.connect(context.destination);
+				notas.push(oscillator); 
+				audios.push(note); 
+				oscillator.start(0);
+				pintar(oscillator, note);
+			} else {
+				let i;
+				for(i = notas.length - 1; i >= 0; i--) {
+					if(Math.round(notas[i].frequency.value) == 0) {
+						notas[i].frequency.value = frequencyFromNoteNumber(note);
+						audios.push(note); 
+						break;
+					}
+				}
+				pintar(notas[i], note);
+			}
 		}
 	}
-}
 
-
-const keyData = document.getElementById('key_data');
-const guardado = document.getElementById('guardado');
-
-const  noteOn = function(midiNote, velocity) {
-	player(midiNote, velocity);
-}
-
-const  noteOff = function(midiNote, velocity) {
-	player(midiNote, velocity);
-}
-
-const onMIDISuccess = function(midiAccess) {
-	console.log('MIDI Access Object', midiAccess);
-	midi = midiAccess;
-	const inputs = midi.inputs.values();
-	for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
-		input.value.onmidimessage = onMIDIMessage;
+	function pintar(oscillator, notaActual) {
+		const ctxNota = canvas.getContext("2d");
+		tiempoInicial2 = new Date();
+		const tiempo3 = new Date() - tiempoInicial2;
+		nota();
+		function nota() {
+			const tiempo3 = new Date() - tiempoInicial;
+		
+			if(inArray(notaActual, audios) && oscillator.frequency.value != 0) {
+				ctx.fillStyle = color;
+				if(horizontalidad) {
+					ctx.fillRect(velocidad, ((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height, 5, 10);
+				} else {
+					ctx.fillRect(((notaActual - notaMasBaja - 5) / rangoNotas)* canvas.height,velocidad, 10, 5);
+				}
+				window.requestAnimationFrame(nota);
+			}
+		}
 	}
+
+//utilidad
+	function inArray(needle, haystack) {
+		const length = haystack.length;
+		for(let i = 0; i < length; i++) {
+			if(haystack[i] == needle) return true;
+		}
+		return false;
+	}
+
+	function shadeColor(color, percent) {
+
+		var R = parseInt(color.substring(1,3),16);
+		var G = parseInt(color.substring(3,5),16);
+		var B = parseInt(color.substring(5,7),16);
+	
+		R = parseInt(R * (100 + percent) / 100);
+		G = parseInt(G * (100 + percent) / 100);
+		B = parseInt(B * (100 + percent) / 100);
+	
+		R = (R<255)?R:255;  
+		G = (G<255)?G:255;  
+		B = (B<255)?B:255;  
+	
+		var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+		var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+		var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+		return "#"+RR+GG+BB;
+	}
+
+	function noteOn(midiNote, velocity) {
+		player(midiNote, velocity);
+	}
+
+	function noteOff(midiNote, velocity) {
+		player(midiNote, velocity);
+	}
+
+	function onMIDIFailure(e) {
+		// when we get a failed response, run this code
+		console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + e);
+	}
+
+	function frequencyFromNoteNumber(note) {
+    	return 440 * Math.pow(2, (note - 69) / 12);
+	}
+
+	function logger(container, label, data) {
+        messages = label + " [channel: " + (data[0] & 0xf) + ", cmd: " + (data[0] >> 4) + ", type: " + (data[0] & 0xf0) + " , note: " + data[1] + " , velocity: " + data[2] + "]";
+        container.textContent = messages;
+	}
+
 }
 
-const logger = function(container, label, data) {
-	const messages = label + " [channel: " + (data[0] & 0xf) + ", cmd: " + (data[0] >> 4) + ", type: " + (data[0] & 0xf0) + " , note: " + data[1] + " , velocity: " + data[2] + "]";
-	container.textContent = messages;
-}
-
-const onMIDIFailure =  function (e) {
-	// when we get a failed response, run this code
-	console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + e);
-}
-
-const onMIDIMessage = function(event) {
-	data = event.data,
-	cmd = data[0] >> 4,
-	channel = data[0] & 0xf,
-	type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
-	note = data[1],
-	velocity = data[2];
-	if(cambiarNotaMasBaja) {
-		document.getElementById("notaMasBaja").value = note;
-	}
-	if(cambiarNotaMasAlta) {
-		document.getElementById("notaMasAlta").value = note;
-	}
-	switch (type) {
-		case 144: // noteOn message 
-			noteOn(note, velocity);
-			break;
-		case 128: // noteOff message 
-			noteOff(note, velocity);
-			break;
-	}
-//console.log('data', data, 'cmd', cmd, 'channel', channel);
-	logger(keyData, 'key data', data);
-}
 
 colorSelector.addEventListener("change", function (e) {
 	actualizarColores();
@@ -407,40 +404,7 @@ formParametros.addEventListener("change", function () {
     actualizarTempo();
 });
 
-
-document.getElementById("notaMasBaja").addEventListener("focusin", function() {
-	cambiarNotaMasBaja = true;
-	
-});
-
-document.getElementById("notaMasBaja").addEventListener("focusout", function() {
-	cambiarNotaMasBaja = false;
-});
-
-document.getElementById("notaMasAlta").addEventListener("focusin", function() {
-	cambiarNotaMasAlta = true;
-	
-});
-
-document.getElementById("notaMasAlta").addEventListener("focusout", function() {
-	cambiarNotaMasAlta = false;
-});
-
-
 window.onload = function () {
     actualizarTempo();
-	actualizarColores();
-	try {
-		AudioContext = window.AudioContext || window.webkitAudioContext;
-	}
-	catch(e) {
-		alert('Web Audio API is not supported in this browser');
-	}
-	if (navigator.requestMIDIAccess) {
-	navigator.requestMIDIAccess({
-		sysex: false 
-	}).then(onMIDISuccess, onMIDIFailure);
-	} else {
-		alert("No MIDI support in your browser.");
-	}
+    actualizarColores();
 }
